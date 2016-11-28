@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>picture</title>
+    <style>
+        body{
+            background-color: antiquewhite;
+        }
+        .test{
+            position: relative;
+            margin: 0 auto;
+            margin-top: 100px;
+            width: 800px;
+            height: 800px;
+        }
+        .word{
+            background-color: rgba(0,0,0,.3);
+            padding: 20px;
+            top: 45%;
+            display: inline-block;
+            margin-top: -25px;
+            height: 50px;
+            line-height: 50px;
+            font-size: 20px;
+            color: white;
+            position: absolute;
+            bottom: 5px;
+            z-index: 6;
+        }
+        .test img{
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        .firstBox{
+            position: absolute;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            box-sizing: border-box;
+            border-right: 4px solid skyblue;
+            border-radius: 0 3px 3px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="test">
+    <div class="firstBox">
+        <img src="images/310509385839146748.jpg" >
+    </div>
+    <img src="images/447869423022117303.jpg">
+</div>
+<div class="test">
+    <div class="firstBox">
+        <img src="images/310509385839146748.jpg" >
+    </div>
+    <img src="images/447869423022117303.jpg">
+</div>
+<div class="test">
+    <div class="firstBox">
+        <img src="images/310509385839146748.jpg" >
+    </div>
+    <img src="images/447869423022117303.jpg">
+</div>
+<div class="test">
+    <div class="firstBox">
+        <img src="images/310509385839146748.jpg" >
+    </div>
+    <img src="images/447869423022117303.jpg">
+</div>
+<script>
+    Test.prototype={
+        click:function (el,oldImg) {
+            var that=this;
+            el.addEventListener("click",function (e) {
+                var num = ((e.clientX-that.data.boxLeft)/that.data.width).toFixed(2)*100
+                oldImg.style.width=num+"%";
+            })
+        },
+        init:function (el,oldImg) {
+            var that=this;
+            oldImg.querySelector("img").style.width=that.data.width+"px";
+            this.click(el,oldImg);
+            this.move(el,oldImg);
+            this.star(el,oldImg);
+            this.end(el,oldImg);
+            this.word(el,oldImg);
+        },
+        star:function (el,oldImg) {
+            var that = this;
+
+            el.addEventListener('touchstart',function (e) {
+                if(el.querySelector(".word")){
+                    el.querySelector(".word").parentNode.removeChild(el.querySelector(".word"))
+                }
+                oldImg.style.transition="";
+                oldImg.style.webkitTransition="";
+                //记录开始的位置
+                that.data.start=e.touches[0].clientX
+                //记录滑动时间
+                that.data.moveTime=new Date().getTime()
+            })
+        },
+        word:function (el) {
+            var  p =document.createElement("p");
+            p.textContent=this.data.config.text
+            p.classList.add("word")
+            el.appendChild(p)
+            p.style.left="calc(50% - "+ p.clientWidth/2+"px)";
+            p.style.top="calc(50% - "+ p.clientHeight/2+"px)";
+        },
+        end:function (el,oldImg) {
+            var that = this;
+            el.addEventListener('touchend',function (e) {
+                //判断移动的距离
+                var num =that.data.now ;
+                var   move = that.data.config.move ? that.data.config.move : 100
+                var   time = that.data.config.time ? that.data.config.time : 150
+                //判断是否有拖动
+                if(!that.data.isMove) return false;
+                that.data.isMove=false;
+                if(new Date().getTime()-that.data.moveTime>time) return false;
+                oldImg.style.transition="all 1s"
+                oldImg.style.webkitTransition="all 1s"
+                if(num>move){
+                    oldImg.style.width="100%";
+
+                    console.log("向右")
+
+                }else {
+                    if(num<-move){
+                        oldImg.style.width="0%";
+                    }
+                }
+            })
+        },
+        move:function (el,oldImg) {
+            var that=this;
+            el.addEventListener("touchmove",function (e) {
+                //有滑动
+                that.data.isMove=true;
+                e.preventDefault();
+                //计算滑动距离
+                that.data.now=e.touches[0].clientX-that.data.start;
+
+                //超出返回
+                if(e.touches[0].clientX-5>that.data.boxLeft+that.data.width){
+                    return false;
+                }
+                var num = ((e.touches[0].clientX-that.data.boxLeft)/that.data.width).toFixed(2)*100
+                oldImg.style.width=num+"%";
+            })
+        }
+    }
+    function Test(el,config) {
+        var oldImg =el.querySelector(".firstBox");
+        this.data={
+            el:el,
+            width:el.clientWidth,
+            boxLeft:el.offsetLeft,
+            start:null,
+            now:null,
+            isMove:false,
+            moveTime:null,
+            config:config,
+
+        }
+        this.init(el,oldImg);
+    }
+    function Every(name,config) {
+        var els =document.querySelectorAll(name);
+        for(var i=0,n=els.length;i<n;++i){
+            new Test(els[i],config)
+        }
+    }
+    new  Every(".test",{
+        //提示文字
+        text:"试试左右拖动",
+        //少于多少为左滑
+        time:300,
+        //具体大于多少位左滑
+        move:100
+    })
+</script>
+</body>
+</html>
