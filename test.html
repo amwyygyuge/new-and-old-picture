@@ -75,6 +75,9 @@
         click:function (el,oldImg) {
             var that=this;
             el.addEventListener("click",function (e) {
+              if(el.querySelector(".word")){
+                    el.querySelector(".word").parentNode.removeChild(el.querySelector(".word"))
+                }
                 var num = ((e.clientX-that.data.boxLeft)/that.data.width).toFixed(2)*100
                 oldImg.style.width=num+"%";
             })
@@ -92,9 +95,6 @@
             var that = this;
 
             el.addEventListener('touchstart',function (e) {
-                if(el.querySelector(".word")){
-                    el.querySelector(".word").parentNode.removeChild(el.querySelector(".word"))
-                }
                 oldImg.style.transition="";
                 oldImg.style.webkitTransition="";
                 //记录开始的位置
